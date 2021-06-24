@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 
 #include <cstdio>
+#include <tuple>
 
 #include "../include/RenderWindow.h"
 
@@ -27,20 +28,24 @@ void RenderWindow::clear()
     SDL_RenderClear(renderer);
 }
 
-void RenderWindow::render(const SDL_Rect* p_rect)
-{
+void RenderWindow::render(const SDL_Rect *p_rect) {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_RenderDrawRect(renderer, p_rect);
+    SDL_RenderFillRect(renderer, p_rect);
 
 //    std::printf("%d, ", p_rect->h);
 }
 
-void RenderWindow::display()
-{
+void RenderWindow::render(const SDL_Rect *p_rect, const std::tuple<int, int, int> &p_color) {
+    auto[r, g, b] = p_color;
+    SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+
+    SDL_RenderFillRect(renderer, p_rect);
+}
+
+void RenderWindow::display() {
     SDL_RenderPresent(renderer);
 }
 
-void RenderWindow::cleanup()
-{
+void RenderWindow::cleanup() {
     SDL_DestroyWindow(window);
 }

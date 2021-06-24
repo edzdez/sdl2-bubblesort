@@ -7,13 +7,22 @@
 
 #include <SDL2/SDL.h>
 
+#include <tuple>
+
 class RenderWindow {
 public:
     RenderWindow();
-    void create(const char* p_title, int p_w, int p_h);
+
+    void create(const char *p_title, int p_w, int p_h);
+
     void clear();
-    void render(const SDL_Rect* p_rect);
+
+    void render(const SDL_Rect *p_rect);
+
+    void render(const SDL_Rect *p_rect, const std::tuple<int, int, int> &p_color);
+
     void display();
+
     void cleanup();
 
 private:

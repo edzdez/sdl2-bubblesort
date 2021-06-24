@@ -5,6 +5,7 @@
 #include <vector>
 #include <ctime>
 #include <cstdlib>
+#include <tuple>
 
 #include "../include/RenderWindow.h"
 
@@ -34,12 +35,12 @@ State state = STOPPED;
 
 std::vector<SDL_Rect> bars;
 
-int currPos = 0;
+int currPos = -1;
+int currCheck = -1;
 
 bool init() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        std:
-        printf("Failed to intialize SDL2. Error: %s\n", SDL_GetError());
+        std::printf("Failed to intialize SDL2. Error: %s\n", SDL_GetError());
         return false;
     }
 
@@ -67,7 +68,20 @@ void renderBoxes() {
 
     for (int i = 0; i < NUM_BARS; ++i) {
         bars[i].x = i * SCREEN_WIDTH / NUM_BARS;
-        window.render(&bars[i]);
+//        window.render(&bars[i]);
+
+        if (currPos != -1) {
+            if (i < currPos)
+                window.render(&bars[i], std::make_tuple<int, int, int>(0, 255, 0));
+            else if (i == currCheck)
+                window.render(&bars[i], std::make_tuple<int, int, int>(255, 0, 0));
+            else if (i == currCheck - 1)
+                window.render(&bars[i], std::make_tuple<int, int, int>(255, 255, 0));
+            else
+                window.render(&bars[i]);
+        } else {
+            window.render(&bars[i]);
+        }
     }
 
     window.display();
@@ -91,6 +105,9 @@ void pollEvent() {
                         else
                             state = PAUSED;
 
+                        if (currPos == -1)
+                            currPos = 0;
+
                         break;
                 }
                 break;
@@ -104,12 +121,12 @@ void sort() {
             return;
 
         int swaps = 0;
-        for (int j = NUM_BARS - 1; j > currPos; --j) {
-            if (bars[j].h < bars[j - 1].h) {
+        for (currCheck = NUM_BARS - 1; currCheck > currPos; --currCheck) {
+            if (bars[currCheck].h < bars[currCheck - 1].h) {
                 ++swaps;
-                SDL_Rect temp = bars[j];
-                bars[j] = bars[j - 1];
-                bars[j - 1] = temp;
+                SDL_Rect temp = bars[currCheck];
+                bars[currCheck] = bars[currCheck - 1];
+                bars[currCheck - 1] = temp;
             }
 
             pollEvent();
@@ -118,8 +135,11 @@ void sort() {
             SDL_Delay(30);
         }
 
-        if (!swaps)
+        currCheck = -1;
+        if (!swaps) {
+            currPos = NUM_BARS + 1;
             break;
+        }
     }
 
     state = COMPLETED;
